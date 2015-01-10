@@ -81,7 +81,7 @@ public class GraphStochastique{
 			Vector<Double> costVector = new Vector<Double>(numVertex);
 			Vector<Boolean> typeVector = new Vector<Boolean>(numVertex);
 			for (int j = 0; j < numVertex; j++){
-				costVector.add(new Double(Graph.MAXCOST));
+				costVector.add(new Double(Double.MAX_VALUE));
 				typeVector.add(new Boolean(false));
 			}
 			edgeCost.add(costVector);
@@ -116,7 +116,7 @@ public class GraphStochastique{
 			for (int j = 0; j < getNbrVertex(); j++) {
 				tmpCost = getEdgeCost(i, j);
 				tmpType = getEdgeType(i, j);
-				if (tmpCost < Graph.MAXCOST){
+				if (tmpCost < Double.MAX_VALUE){
 					w.write(String.format("%5.0f ", tmpCost));
 					w.write(tmpType?"S":"D");
 				}
@@ -140,7 +140,7 @@ public class GraphStochastique{
 			Iterator<Double> ity = row.iterator();
 			while (ity.hasNext()) {
 				tmpEdgeCost = (Double) ity.next();
-				if (tmpEdgeCost > 0 && tmpEdgeCost < Graph.MAXCOST)
+				if (tmpEdgeCost > 0 && tmpEdgeCost < Double.MAX_VALUE)
 					numEdges++;
 			}
 		}

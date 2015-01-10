@@ -9,6 +9,7 @@ import java.util.Random;
 
 import model.Graph;
 import model.GraphStochastique;
+import controller.Glouton;
 import controller.Parser;
 
 public class ProblemeStochastique {
@@ -175,7 +176,8 @@ public class ProblemeStochastique {
 		startTimer();
 		scenarios = generationScenarios(pourcentageDeteministe,nbrScenarios);
 		GraphStochastique scenarioTMP = new GraphStochastique(scenarios.get(0));
-		GraphStochastique solutionScenarioTMP =  VNS.solve(scenarioTMP);
+		//GraphStochastique solutionScenarioTMP =  VNS.solve(scenarioTMP);
+		GraphStochastique solutionScenarioTMP =  Glouton.solve(scenarioTMP);
 		try {
 			System.out.println("========= Solution scenarioTMP ========");
 			solutionScenarioTMP.printGraph();
@@ -184,7 +186,7 @@ public class ProblemeStochastique {
 			// TODO Bloc catch généré automatiquement
 			e.printStackTrace();
 		}
-		
+
 		
 		stopTimer();
 		return graphSolution;
@@ -206,12 +208,13 @@ public class ProblemeStochastique {
 		System.out.println("================ DEB ================");
 		g.printGraph();
 		System.out.println("================ FIN =================");
-		System.out.println("=========== Senario Genere ===========");
-		ArrayList<GraphStochastique> gen = ps.generationScenarios(80, 5);
-		for (int i = 0; i < ps.getNbrScenarios(); i++) {
-			System.out.println("=========== Senario "+i +"  ===========");
-			gen.get(i).printGraph();
-		}
+		ps.solve(10, 5);
+//		System.out.println("=========== Senario Genere ===========");
+//		ArrayList<GraphStochastique> gen = ps.generationScenarios(80, 5);
+//		for (int i = 0; i < ps.getNbrScenarios(); i++) {
+//			System.out.println("=========== Senario "+i +"  ===========");
+//			gen.get(i).printGraph();
+//		}
 		long end = System.currentTimeMillis();
 		float millis = (float) (end - begin) / 1000;
 		int sec = (int) millis;
