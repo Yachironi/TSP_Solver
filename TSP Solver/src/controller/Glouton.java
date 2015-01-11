@@ -12,7 +12,7 @@ public class Glouton {
 		GraphStochastique graphSolution = new GraphStochastique(
 				g.getNbrVertex());
 		Integer departGlouton = (int) (Math.random() * g.getNbrVertex());
-		System.out.println("Depart = " + departGlouton);
+		//System.out.println("Depart Glouton= " + departGlouton);
 		boolean condition = true;
 		Integer depart = departGlouton;
 		Integer arrive = -1;

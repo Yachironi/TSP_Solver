@@ -1,9 +1,10 @@
 package util;
 
-public class Paire<T1,T2> {
+public class Paire<T1,T2> implements Cloneable {
 	
 	T1 first;
 	T2 second;
+	
 	
 	public Paire() {
 		// TODO Auto-generated constructor stub
@@ -27,6 +28,14 @@ public class Paire<T1,T2> {
 		return second;
 	}
 	
+	public void setFirst(T1 first) {
+		this.first = first;
+	}
+
+	public void setSecond(T2 second) {
+		this.second = second;
+	}
+
 	@Override
 	public int hashCode() {
 		// TODO Auto-generated method stub

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-import model.Graph;
 import model.GraphStochastique;
+import model.Solution;
 import controller.Glouton;
 import controller.Parser;
 
@@ -30,7 +30,8 @@ public class ProblemeStochastique {
 		this.nbrScenarios = nbrScenarios;
 	}
 
-	public ProblemeStochastique(GraphStochastique graphEntree, Integer nbrScenarios) {
+	public ProblemeStochastique(GraphStochastique graphEntree,
+			Integer nbrScenarios) {
 		super();
 		solution = 0.0;
 		solutionK_TSP = new ArrayList<Double>();
@@ -106,7 +107,8 @@ public class ProblemeStochastique {
 	 * @return les différents scénarios
 	 * @throws IOException
 	 */
-	public ArrayList<GraphStochastique> generationScenarios(double pourcentage, int nbr) {
+	public ArrayList<GraphStochastique> generationScenarios(double pourcentage,
+			int nbr) {
 		ArrayList<GraphStochastique> scenariosBruite = new ArrayList<GraphStochastique>();
 		GraphStochastique graphTmp = new GraphStochastique(graphEntree);
 		int nbrAretesDeterministe = (int) ((graphEntree.getNumEdges() * pourcentage) / 100);
@@ -117,7 +119,8 @@ public class ProblemeStochastique {
 			Integer[][] tab = generateRondomVertex(nbrAretesStochastique);
 			ArrayList<Double> coupAretesStochastique = new ArrayList<>();
 			for (int j = 0; j < tab.length; j++) {
-				coupAretesStochastique.add(graphEntree.getEdgeCost(tab[j][0],tab[j][1]));
+				coupAretesStochastique.add(graphEntree.getEdgeCost(tab[j][0],
+						tab[j][1]));
 			}
 			for (int j = 0; j < nbrAretesStochastique; j++) {
 				double cost = graphEntree.getEdgeCost(tab[j][0], tab[j][1]);
@@ -163,33 +166,33 @@ public class ProblemeStochastique {
 		stopTime = System.currentTimeMillis();
 	}
 
-	public float getExcutionTime(){
+	public float getExcutionTime() {
 		return (float) (startTime - stopTime) / 1000;
 	}
-	
+
 	/**
 	 * Resolution du TSP Stochastique
+	 * 
 	 * @return le graphe solution
 	 */
-	public GraphStochastique solve(double pourcentageDeteministe,int nbrScenarios) {
-		GraphStochastique graphSolution = null;
+	public Solution solve(double pourcentageDeteministe, int nbrScenarios,
+			int kMax, int itMax) {
+		Solution resultat = new Solution();
 		startTimer();
-		scenarios = generationScenarios(pourcentageDeteministe,nbrScenarios);
-		GraphStochastique scenarioTMP = new GraphStochastique(scenarios.get(0));
-		//GraphStochastique solutionScenarioTMP =  VNS.solve(scenarioTMP);
-		GraphStochastique solutionScenarioTMP =  Glouton.solve(scenarioTMP);
-		try {
-			System.out.println("========= Solution scenarioTMP ========");
-			solutionScenarioTMP.printGraph();
-			
-		} catch (IOException e) {
-			// TODO Bloc catch généré automatiquement
-			e.printStackTrace();
+		scenarios = generationScenarios(pourcentageDeteministe, nbrScenarios);
+		//GraphStochastique scenarioTMP = new GraphStochastique(scenarios.get(0));
+		// GraphStochastique solutionScenarioTMP = VNS.solve(scenarioTMP);
+		GraphStochastique scenarioTMP =null;
+		for(int i=0;i<nbrScenarios;i++){
+		scenarioTMP = new GraphStochastique(scenarios.get(0));
+		VNS vns = new VNS(2, 5, scenarioTMP);
+		resultat = vns.solve(itMax, kMax);
+		System.out.println("Scenario N° = "+i);
+		System.out.println("Graph Solution ="+resultat);
+		System.out.println("Cout Total = " + resultat.getTotalCost(scenarioTMP));
 		}
-
-		
 		stopTimer();
-		return graphSolution;
+		return resultat;
 	}
 
 	public static void main(String[] args) throws IloException, IOException {
@@ -208,13 +211,15 @@ public class ProblemeStochastique {
 		System.out.println("================ DEB ================");
 		g.printGraph();
 		System.out.println("================ FIN =================");
-		ps.solve(10, 5);
-//		System.out.println("=========== Senario Genere ===========");
-//		ArrayList<GraphStochastique> gen = ps.generationScenarios(80, 5);
-//		for (int i = 0; i < ps.getNbrScenarios(); i++) {
-//			System.out.println("=========== Senario "+i +"  ===========");
-//			gen.get(i).printGraph();
-//		}
+		Solution resultat = ps.solve(10, 3, 2, 100);
+	//	System.out.println("Cout Total = " + resultat.getTotalCost(g));
+
+		// System.out.println("=========== Senario Genere ===========");
+		// ArrayList<GraphStochastique> gen = ps.generationScenarios(80, 5);
+		// for (int i = 0; i < ps.getNbrScenarios(); i++) {
+		// System.out.println("=========== Senario "+i +"  ===========");
+		// gen.get(i).printGraph();
+		// }
 		long end = System.currentTimeMillis();
 		float millis = (float) (end - begin) / 1000;
 		int sec = (int) millis;

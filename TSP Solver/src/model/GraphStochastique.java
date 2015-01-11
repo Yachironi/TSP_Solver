@@ -8,15 +8,43 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
-public class GraphStochastique{
-
+public class GraphStochastique implements Cloneable {
 
 	public static final int MAXCOST = 999999;
 	private int nbrVertex;
 	private Vector<Vector<Double>> edgeCost;
 	private Vector<Vector<Boolean>> edgeType;
+
+	public Object clone() {
+		GraphStochastique graphStochastique = null;
+		try {
+			// On récupère l'instance à renvoyer par l'appel de la
+			// méthode super.clone()
+			graphStochastique = (GraphStochastique) super.clone();
+		} catch (CloneNotSupportedException cnse) {
+			// Ne devrait jamais arriver car nous implémentons
+			// l'interface Cloneable
+			cnse.printStackTrace(System.err);
+		}
+
+		// On clone l'attribut de type Patronyme qui n'est pas immuable.
+		graphStochastique.nbrVertex = nbrVertex;
+		graphStochastique.edgeCost = new Vector<Vector<Double>>(nbrVertex);
+		graphStochastique.edgeType = new Vector<Vector<Boolean>>(nbrVertex);
+		for (int i = 0; i < nbrVertex; i++) {
+			Vector<Double> costVector = new Vector<Double>(nbrVertex);
+			Vector<Boolean> typeVector = new Vector<Boolean>(nbrVertex);
+			for (int j = 0; j < nbrVertex; j++) {
+				costVector.add(new Double(getEdgeCost(i, j)));
+				typeVector.add(new Boolean(getEdgeType(i, j)));
+			}
+			graphStochastique.edgeCost.add(costVector);
+			graphStochastique.edgeType.add(typeVector);
+		}
+		// on renvoie le clone
+
+		return graphStochastique;
+	}
 
 	public Vector<Vector<Double>> getEdgeCost() {
 		return edgeCost;
@@ -33,38 +61,41 @@ public class GraphStochastique{
 	public void setNbrVertex(int numVertex) {
 		this.nbrVertex = numVertex;
 	}
-	   public GraphStochastique(GraphStochastique g) {
-			this.nbrVertex = g.getNbrVertex();
-			edgeCost = new Vector<Vector<Double>>(nbrVertex);
-			edgeType = new Vector<Vector<Boolean>>(nbrVertex);
-			for (int i = 0; i < nbrVertex; i++) {
-				Vector<Double> costVector = new Vector<Double>(nbrVertex);
-				Vector<Boolean> typeVector = new Vector<Boolean>(nbrVertex);
-				for (int j = 0; j < nbrVertex; j++){
-					costVector.add(new Double(g.getEdgeCost(i, j)));
-					typeVector.add(new Boolean(g.getEdgeType(i, j)));
-				}
-				edgeCost.add(costVector);
-				edgeType.add(typeVector);
+
+	public GraphStochastique(GraphStochastique g) {
+		this.nbrVertex = g.getNbrVertex();
+		edgeCost = new Vector<Vector<Double>>(nbrVertex);
+		edgeType = new Vector<Vector<Boolean>>(nbrVertex);
+		for (int i = 0; i < nbrVertex; i++) {
+			Vector<Double> costVector = new Vector<Double>(nbrVertex);
+			Vector<Boolean> typeVector = new Vector<Boolean>(nbrVertex);
+			for (int j = 0; j < nbrVertex; j++) {
+				costVector.add(new Double(g.getEdgeCost(i, j)));
+				typeVector.add(new Boolean(g.getEdgeType(i, j)));
 			}
-			
+			edgeCost.add(costVector);
+			edgeType.add(typeVector);
 		}
-	   public GraphStochastique(Graph g) {
-				this.nbrVertex = g.getNbrVertex();
-				edgeCost = new Vector<Vector<Double>>(nbrVertex);
-				edgeType = new Vector<Vector<Boolean>>(nbrVertex);
-				for (int i = 0; i < nbrVertex; i++) {
-					Vector<Double> costVector = new Vector<Double>(nbrVertex);
-					Vector<Boolean> typeVector = new Vector<Boolean>(nbrVertex);
-					for (int j = 0; j < nbrVertex; j++){
-						costVector.add(new Double(g.getEdgeCost(i, j)));
-						typeVector.add(new Boolean(false));
-					}
-					edgeCost.add(costVector);
-					edgeType.add(typeVector);
-				}
-				
+
+	}
+
+	public GraphStochastique(Graph g) {
+		this.nbrVertex = g.getNbrVertex();
+		edgeCost = new Vector<Vector<Double>>(nbrVertex);
+		edgeType = new Vector<Vector<Boolean>>(nbrVertex);
+		for (int i = 0; i < nbrVertex; i++) {
+			Vector<Double> costVector = new Vector<Double>(nbrVertex);
+			Vector<Boolean> typeVector = new Vector<Boolean>(nbrVertex);
+			for (int j = 0; j < nbrVertex; j++) {
+				costVector.add(new Double(g.getEdgeCost(i, j)));
+				typeVector.add(new Boolean(false));
 			}
+			edgeCost.add(costVector);
+			edgeType.add(typeVector);
+		}
+
+	}
+
 	public GraphStochastique(int numVertex, Vector<Vector<Double>> edgeCost) {
 		super();
 		this.nbrVertex = numVertex;
@@ -80,7 +111,7 @@ public class GraphStochastique{
 		for (int i = 0; i < numVertex; i++) {
 			Vector<Double> costVector = new Vector<Double>(numVertex);
 			Vector<Boolean> typeVector = new Vector<Boolean>(numVertex);
-			for (int j = 0; j < numVertex; j++){
+			for (int j = 0; j < numVertex; j++) {
 				costVector.add(new Double(Double.MAX_VALUE));
 				typeVector.add(new Boolean(false));
 			}
@@ -116,11 +147,10 @@ public class GraphStochastique{
 			for (int j = 0; j < getNbrVertex(); j++) {
 				tmpCost = getEdgeCost(i, j);
 				tmpType = getEdgeType(i, j);
-				if (tmpCost < Double.MAX_VALUE){
+				if (tmpCost < Double.MAX_VALUE) {
 					w.write(String.format("%5.0f ", tmpCost));
-					w.write(tmpType?"S":"D");
-				}
-				else{
+					w.write(tmpType ? "S" : "D");
+				} else {
 					w.write(String.format("  INF "));
 				}
 			}
@@ -147,23 +177,31 @@ public class GraphStochastique{
 		return numEdges;
 	}
 
-	public double getEdgeCost(int i, int j) {
+	public Double getEdgeCost(int i, int j) {
 		return edgeCost.get(i).get(j);
 	}
-	
+
 	public boolean isEdgeStochastique(int i, int j) {
-		if(edgeType.get(i).get(j)==true){
+		if (edgeType.get(i).get(j) == true) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
-	
+
+	public boolean isEdgeExist(int i, int j) {
+		if (!edgeCost.get(i).get(j).equals(Double.MAX_VALUE)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public boolean getEdgeType(int i, int j) {
 		return edgeType.get(i).get(j);
 	}
-	
-	public void setEdgeType(int i,int j,boolean type) {
+
+	public void setEdgeType(int i, int j, boolean type) {
 		edgeType.get(i).set(j, type);
 	}
 
