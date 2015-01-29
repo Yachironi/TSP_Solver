@@ -58,8 +58,11 @@ public class Paire<T1,T2> implements Cloneable {
 			
 			boolean b1 = this.getFirst().equals(other.getFirst());
 			boolean b2 = this.getSecond().equals(other.getSecond());
-			
-			if(b1&&b2)
+			/*
+			boolean b3 = this.getFirst().equals(other.getSecond());
+			boolean b4 = this.getSecond().equals(other.getFirst());
+			*/
+			if((b1&&b2)/*||(b3&&b4)*/)
 				return true;
 			
 		} catch (ClassCastException e) {

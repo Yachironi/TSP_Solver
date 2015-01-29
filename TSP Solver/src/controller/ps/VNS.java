@@ -1,6 +1,7 @@
 package controller.ps;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 import model.GraphStochastique;
@@ -30,7 +31,7 @@ public class VNS {
 		Integer arrive = null;
 		int i = 0;
 		do {
-			System.out.println("Rand " + (i++));
+			//System.out.println("Rand " + (i++));
 			arrive = (int) (Math.random() * g.getNbrVertex());
 			while (arrive.equals(x)) {
 				arrive = (int) (Math.random() * g.getNbrVertex());
@@ -50,16 +51,22 @@ public class VNS {
 		// solution = solution.graphToSolution(Glouton.solve(graphEntree));
 		Solution s2 = new Solution();
 		while (k <= kMax) {
-			System.out.println("Pour k = " + k);
+			//System.out.println("Pour k = " + k);
 			while (it <= itMax) {
 				ArrayList<Paire<Integer, Integer>> edgeAEnleve = shaking(k);
+				//System.out.println("Iteration = "+it);
+				//System.out.println(edgeAEnleve);
 				s2 = localSearch(solution, edgeAEnleve, k);
+				solution = (Solution) s2.clone();
+				//System.out.println(s2);
+				//System.out.println("Cout Total = "+s2.getTotalCost(graphEntree));
 
 				if (s2.getTotalCost(graphEntree) < s1.getTotalCost(graphEntree)) {
 					s1 = (Solution) s2.clone();
+					solution = (Solution) s2.clone();
 					// System.out.println("Meilleur Solution Trouve !!! ");
 					// System.out.println("Iteration = "+it);
-					// System.out.println("Cout Total S1 = "+s1.getTotalCost(graphEntree));
+					// System.out.println("Cout Total = "+s1.getTotalCost(graphEntree));
 				}
 				it++;
 			}
@@ -81,7 +88,57 @@ public class VNS {
 		Solution solutionTMP = (Solution) solution.clone();
 		if (k > 2) {
 			// TODO N-OPT
-			return null;
+			//System.out.println(solutionTMP);
+			//System.out.println("Nbr d'arc avant la recherche "+solutionTMP.getArcs().size());
+			
+			Paire<Integer, Integer> pairAajouter = new Paire<Integer, Integer>();
+			ArrayList<Paire<Integer, Integer>> listAajouter = new ArrayList<Paire<Integer,Integer>>();
+			// Ajout Premier arc enlevé
+			pairAajouter = new Paire<Integer, Integer>();
+			pairAajouter.setFirst(edgeAEnleve.get(0).getFirst());
+			pairAajouter.setSecond(edgeAEnleve.get(1).getSecond());
+			//System.out.println(pairAajouter);
+			listAajouter.add(pairAajouter);
+			//  Ajout Deuxième arc enlevé 
+			pairAajouter = new Paire<Integer, Integer>();
+			pairAajouter.setFirst(edgeAEnleve.get(0).getSecond());
+			pairAajouter.setSecond(edgeAEnleve.get(2).getFirst());
+			//System.out.println(pairAajouter);
+			listAajouter.add(pairAajouter);
+			pairAajouter = new Paire<Integer, Integer>();
+			//  Ajout Dernier arc enlevé 
+			pairAajouter.setFirst(edgeAEnleve.get(edgeAEnleve.size()-1).getSecond());
+			pairAajouter.setSecond(edgeAEnleve.get(edgeAEnleve.size()-2).getFirst());
+			//System.out.println(pairAajouter);
+			listAajouter.add(pairAajouter);
+			
+		
+			
+			//System.out.println("Nbr d'arc après le remove "+solutionTMP.getArcs().size());
+			for(int i=1;i<edgeAEnleve.size()-2;i++){
+				pairAajouter = new Paire<Integer, Integer>();
+				pairAajouter = new Paire<Integer, Integer>();
+				pairAajouter.setFirst(edgeAEnleve.get(i).getSecond());
+				pairAajouter.setSecond(edgeAEnleve.get(i+2).getFirst());
+				listAajouter.add(pairAajouter);
+				//solutionTMP.getArcs().add(pairAajouter);
+				//System.out.println(pairAajouter);
+			}
+			
+			for (Iterator iterator = listAajouter.iterator(); iterator
+					.hasNext();) {
+				Paire<Integer, Integer> paire = (Paire<Integer, Integer>) iterator
+						.next();
+				if(isExist(solutionTMP.getArcs(),paire)){
+					return solution;
+				}
+			}
+			
+			solutionTMP.getArcs().addAll(listAajouter);
+			solutionTMP.getArcs().removeAll(edgeAEnleve);
+			
+			//System.out.println("Nbr d'arc après la recherche "+solutionTMP.getArcs().size());
+			return solutionTMP;
 		} else {
 			// 2-OPT
 
@@ -103,14 +160,30 @@ public class VNS {
 		int pres = -1;
 		for (int i = 0; i < k; i++) {
 
-			alea = rand.nextInt(graphEntree.getNbrVertex());
+			alea = rand.nextInt(solution.getArcs().size()-1);
+			//alea = rand.nextInt(graphEntree.getNbrVertex());
 			while (alea == aleaprec) {
-				alea = rand.nextInt(graphEntree.getNbrVertex());
+				//alea = rand.nextInt(graphEntree.getNbrVertex());
+				alea = rand.nextInt(solution.getArcs().size()-1);
+
 			}
 			while (solution.getArcs().get(alea).getFirst().equals(pres)) {
-				alea = rand.nextInt(graphEntree.getNbrVertex());
-			}
+				//alea = rand.nextInt(graphEntree.getNbrVertex());
+				alea = rand.nextInt(solution.getArcs().size()-1);
 
+			}
+			while(edgeAEnleve.contains(solution.getArcs().get(alea))){
+				//alea = rand.nextInt(graphEntree.getNbrVertex());
+				alea = rand.nextInt(solution.getArcs().size()-1);
+
+			}
+			while(isExist(edgeAEnleve,
+					solution.getArcs().get(alea))){
+				//alea = rand.nextInt(graphEntree.getNbrVertex());
+				alea = rand.nextInt(solution.getArcs().size()-1);
+
+			}
+			
 			pres = solution.getArcs().get(alea).getSecond();
 			edgeAEnleve.add(solution.getArcs().get(alea));
 			aleaprec = alea;
@@ -119,6 +192,20 @@ public class VNS {
 		return edgeAEnleve;
 	}
 
+	public boolean isExist(ArrayList<Paire<Integer, Integer>> interdit,Paire<Integer, Integer> pair) {
+		for (Iterator iterator = interdit.iterator(); iterator.hasNext();) {
+			Paire<Integer, Integer> paire1 = (Paire<Integer, Integer>) iterator
+					.next();
+			if ((paire1.getFirst().equals(pair.getFirst()))
+					|| (paire1.getSecond().equals(pair.getFirst()))
+					|| (paire1.getFirst().equals(pair.getSecond()))
+					|| (paire1.getSecond().equals(pair.getSecond()))	) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private static Solution rechercheMeilleurSolution(Solution solution,
 			ArrayList<Paire<Integer, Integer>> interdit) {
 		Integer deb;
@@ -146,7 +233,7 @@ public class VNS {
 
 		solutionTMP.getArcs().remove(interdit.get(0));
 		solutionTMP.getArcs().remove(interdit.get(1));
-		System.out.println("Arc Intedit " + interdit.get(0));
+		//System.out.println("Arc Intedit " + interdit.get(0));
 		Integer tmp = solutionTMP.getArcSortant(interdit.get(1).getSecond())
 				.getSecond();
 		solutionTMP.getArcs().remove(

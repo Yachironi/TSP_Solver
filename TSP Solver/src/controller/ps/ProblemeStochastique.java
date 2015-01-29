@@ -184,12 +184,14 @@ public class ProblemeStochastique {
 		// GraphStochastique solutionScenarioTMP = VNS.solve(scenarioTMP);
 		GraphStochastique scenarioTMP =null;
 		for(int i=0;i<nbrScenarios;i++){
-		scenarioTMP = new GraphStochastique(scenarios.get(0));
+		scenarioTMP = new GraphStochastique(scenarios.get(i));
 		VNS vns = new VNS(2, 5, scenarioTMP);
 		resultat = vns.solve(itMax, kMax);
 		System.out.println("Scenario N° = "+i);
+		System.out.println("Taille Graph Solution ="+resultat.getArcs().size());
 		System.out.println("Graph Solution ="+resultat);
 		System.out.println("Cout Total = " + resultat.getTotalCost(scenarioTMP));
+		System.out.println("Glouton  = "+Solution.graphToSolution(Glouton.solve(scenarios.get(i))).getTotalCost(scenarios.get(i))); 
 		}
 		stopTimer();
 		return resultat;
@@ -211,7 +213,7 @@ public class ProblemeStochastique {
 		System.out.println("================ DEB ================");
 		g.printGraph();
 		System.out.println("================ FIN =================");
-		Solution resultat = ps.solve(10, 3, 2, 100);
+		Solution resultat = ps.solve(10, 100, 5, 5);
 	//	System.out.println("Cout Total = " + resultat.getTotalCost(g));
 
 		// System.out.println("=========== Senario Genere ===========");
